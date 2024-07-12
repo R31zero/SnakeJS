@@ -1,0 +1,207 @@
+<!DOCTYPE html >
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Snake</title>
+    <link href="https://fonts.googleapis.com/css?family=Kaushan+Script|
+      Montserrat:400,700&amp;subset=cyrillic-ext" rel="stylecheet">
+    <style type="text/css">
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+        /*Global parameters*/
+        body {
+            background: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Monsterrat', sans-serif;
+        }
+        /*Border around the playing field*/
+        canvas {
+            border: 1px solid white;
+        }
+
+        .logo {
+            background-color: #404040;
+            width: 100%;
+            padding-top: 5px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            text-align: center;
+            font-size: 100px;
+            font-weight: 700;
+            color: green;
+            font-family: 'Kaushan Script', cursive;
+        }
+
+        .home {
+            background-color: #404040;
+            width: 100%;
+            padding-top: 5px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            text-align: center;
+            font-size: 100px;
+            font-weight: 700;
+            color: green;
+            font-family: 'Kaushan Script', cursive;
+        }
+
+        .div_score {
+            width: 130px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 2px solid white;
+            color: white;
+            text-align: left;
+        }
+
+        .div_button {
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo">
+        <div class="logo_inner">Snake</div>
+        <div class="home">Home</div>
+    </div>
+
+    <div class="interactions">
+        <div class="div_score">
+            <div id="score">Your score: </div>
+        </div>
+        <div class="div_button">
+            <button id="SnakeGame">Start</button>
+        </div>
+    </div>
+
+    <canvas width="400" height="400" id="game"></canvas>
+    
+    <script>
+        
+        const startNewGame = () => {
+            requestAnimationFrame(loop);
+        };
+        const button = document.querySelector('#SnakeGame');
+        button.addEventListener('click', startNewGame, { once: true });
+
+        
+        var canvas = document.getElementById('game');
+        var context = canvas.getContext('2d');
+        var grid = 16;
+        var count = 0;
+        var score = 1;
+        
+        var snake = {
+            x: 160,
+            y: 160,
+            dx: grid,
+            dy: 0,
+            cells: [],
+            maxCells: 4
+        };
+        var apple = {
+            x: 320,
+            y: 320
+        };
+
+        function getScoreInHtml() {
+            let scoreInHtml = document.getElementById('score');
+            scoreInHtml.innerHTML = ("Your score: " + score);
+            score = score + 1;
+        }
+        function getResetScore() {
+            let scoreInHtml = document.getElementById('score'); 
+            score = 0;
+            scoreInHtml.innerHTML = ("Your score: " + score);
+        }
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+        function loop() {
+            requestAnimationFrame(loop);
+            if (++count < 4) {
+                return;
+            }
+            count = 0;
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            snake.x += snake.dx;
+            snake.y += snake.dy;
+            if (snake.x < 0) {
+                snake.x = canvas.width - grid;
+            }
+            else if (snake.x >= canvas.width) {
+                snake.x = 0;
+            }
+            if (snake.y < 0) {
+                snake.y = canvas.height - grid;
+            }
+            else if (snake.y >= canvas.height) {
+                snake.y = 0;
+            }
+            snake.cells.unshift({ x: snake.x, y: snake.y });
+            if (snake.cells.length > snake.maxCells) {
+                snake.cells.pop();
+            }
+            context.fillStyle = 'red';
+            context.fillRect(apple.x, apple.y, grid - 1, grid - 1);
+            context.fillStyle = 'green';
+            snake.cells.forEach(function (cell, index) {
+                context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
+                if (cell.x === apple.x && cell.y === apple.y) {
+                    snake.maxCells++;
+                    apple.x = getRandomInt(0, 25) * grid;
+                    apple.y = getRandomInt(0, 25) * grid;
+                    getScoreInHtml();
+                    
+                }
+                for (var i = index + 1; i < snake.cells.length; i++) {
+                    if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+                        snake.x = 160;
+                        snake.y = 160;
+                        snake.cells = [];
+                        snake.maxCells = 4;
+                        snake.dx = grid;
+                        snake.dy = 0;
+                        apple.x = getRandomInt(0, 25) * grid;
+                        apple.y = getRandomInt(0, 25) * grid;
+                        getResetScore();
+                    }
+                }
+            });
+        }
+        document.addEventListener('keydown', function (e) {
+            if (e.which === 37 && snake.dx === 0) {
+                snake.dx = -grid;
+                snake.dy = 0;
+            }
+            else if (e.which === 38 && snake.dy === 0) {
+                snake.dy = -grid;
+                snake.dx = 0;
+            }
+            else if (e.which === 39 && snake.dx === 0) {
+                snake.dx = grid;
+                snake.dy = 0;
+            }
+            else if (e.which === 40 && snake.dy === 0) {
+                snake.dy = grid;
+                snake.dx = 0;
+            }
+        });
+
+    </script>
+</body>
+
+</html>
